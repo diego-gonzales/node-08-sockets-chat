@@ -13,7 +13,8 @@ class Chat {
   }
 
   get last10Messages() {
-    return this.messages.splice(0, 10);
+    this.messages = this.messages.splice(0, 10);
+    return this.messages;
   }
 
   get usersToArray() {
