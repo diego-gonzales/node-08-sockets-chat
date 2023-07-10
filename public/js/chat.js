@@ -4,6 +4,10 @@ const messageInput = document.querySelector('#message');
 const chatsList = document.querySelector('#chatsList');
 const privateChatsList = document.querySelector('#privateChatsList');
 const usersList = document.querySelector('#usersList');
+const privateMessages = [];
+const idsPrivados = [];
+let nombrePropio;
+let socket = null;
 
 const API_URL = window.location.hostname.includes('localhost')
   ? 'http://localhost:8080/api/auth/renew-token'
@@ -35,7 +39,7 @@ const main = async () => {
 };
 
 async function connectToSocket(token) {
-  const socket = io({
+  socket = io({
     extraHeaders: { token },
   });
 
@@ -53,6 +57,11 @@ async function connectToSocket(token) {
 
   socket.on('private-message', renderPrivateMessages);
 
+  socket.on('self-name', (name) => {
+    console.log('self-name', name);
+    nombrePropio = name;
+  });
+
   messageInput.addEventListener('keyup', ({ keyCode }) => {
     const message = messageInput.value.trim();
     const uidToPrivateMessage = uidInput.value.trim();
@@ -68,6 +77,7 @@ async function connectToSocket(token) {
 
 function renderUsers(users = []) {
   let usersHtml = '';
+
   users.forEach(({ name, uid }) => {
     usersHtml += `
       <li>
@@ -84,6 +94,7 @@ function renderUsers(users = []) {
 
 function renderMessages(messages = []) {
   let messagesHtml = '';
+
   messages.forEach(({ name, message }) => {
     messagesHtml += `
       <li>
@@ -102,22 +113,28 @@ function renderMessages(messages = []) {
   chatsList.innerHTML = messagesHtml;
 }
 
-function renderPrivateMessages({ from, message }) {
-  let privateMessagesHtml = '';
-  privateMessagesHtml += `
-    <li>
-      <figure>
-        <blockquote class="blockquote">
-          <p>${message}</p>
-        </blockquote>
-        <figcaption class="blockquote-footer text-primary">
-          ${from}
-        </figcaption>
-      </figure>
-    </li>
-  `;
+function renderPrivateMessages(messages = []) {
+  console.log(messages);
+  let mensajesHTML = '';
+  privateMessages.unshift(messages);
 
-  privateChatsList.innerHTML += privateMessagesHtml;
+  privateMessages.forEach(({ destinatario, nombre, mensaje }) => {
+    mensajesHTML += `
+      <p class="m-3 msgdynamic">
+        <span>De <span class="text-primary">
+          ${nombre === nombrePropio ? 'mi' : destinatario}
+        </span> para 
+        <span class="text-primary">
+          ${destinatario === nombrePropio ? 'mi' : destinatario}
+        </span>: </span>
+        <br/>
+        <p class="bg-primary bg-opacity-25 msg">${mensaje}</p>
+      </p>
+      <hr/>
+    `;
+  });
+
+  privateChatsList.innerHTML = mensajesHTML;
 }
 
 main();

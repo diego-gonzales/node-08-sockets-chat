@@ -6,10 +6,21 @@ class Message {
   }
 }
 
+class MensajePrivado {
+  constructor(uid, nombre, mensaje, uidDestinatario, destinatario) {
+    this.uid = uid;
+    this.nombre = nombre;
+    this.mensaje = mensaje;
+    this.uidDestinatario = uidDestinatario;
+    this.destinatario = destinatario;
+  }
+}
+
 class Chat {
   constructor() {
     this.users = {}; // { uid: { name, uid, photo } }
     this.messages = [];
+    this.mensajesPrivados = [];
   }
 
   get last10Messages() {
@@ -32,6 +43,26 @@ class Chat {
 
   disconnectUser(id) {
     delete this.users[id];
+  }
+
+  misMensajesPrivados(uid = '') {
+    let msgs = this.mensajesPrivados;
+    let mensajePrivadísimo = msgs.find((msg) => msg.uidDestinatario === uid);
+    console.log(mensajePrivadísimo);
+
+    return mensajePrivadísimo;
+  }
+
+  enviarMensajePrivado(uid, nombre, mensaje, uidDestinatario, destinatario) {
+    const msg = new MensajePrivado(
+      uid,
+      nombre,
+      mensaje,
+      uidDestinatario,
+      destinatario
+    );
+
+    this.mensajesPrivados.unshift(msg);
   }
 }
 

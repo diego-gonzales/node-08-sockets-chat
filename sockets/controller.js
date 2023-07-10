@@ -1,6 +1,6 @@
 const { Socket } = require('socket.io');
 const { validateToken } = require('../helpers');
-const { Chat } = require('../models');
+const { Chat, User } = require('../models');
 
 const chat = new Chat();
 
@@ -24,14 +24,30 @@ const socketController = async (socket = new Socket(), io) => {
     io.emit('active-users', chat.usersToArray);
   });
 
-  socket.on('send-message', ({ uidToPrivateMessage, message }) => {
+  socket.emit('self-name', user.name);
+
+  socket.on('send-message', async ({ uidToPrivateMessage, message }) => {
     if (uidToPrivateMessage) {
-      chat.sendMessage(user.id, user.name, message);
+      const { name: destinatary } = await User.findById(uidToPrivateMessage);
+
+      chat.enviarMensajePrivado(
+        user.id,
+        user.name,
+        message,
+        uidToPrivateMessage,
+        destinatary
+      );
 
       // Private message
       socket
         .to(uidToPrivateMessage)
-        .emit('private-message', { from: user.name, message });
+        .emit('private-message', chat.misMensajesPrivados(uidToPrivateMessage));
+
+      socket.emit(
+        'private-message',
+        chat.misMensajesPrivados(uidToPrivateMessage)
+      );
+
       return;
     }
 
