@@ -58,7 +58,7 @@ async function connectToSocket(token) {
   socket.on('private-message', renderPrivateMessages);
 
   socket.on('self-name', (name) => {
-    console.log('self-name', name);
+    // console.log('self-name', name);
     nombrePropio = name;
   });
 
@@ -114,15 +114,14 @@ function renderMessages(messages = []) {
 }
 
 function renderPrivateMessages(messages = []) {
-  console.log(messages);
+  // console.log(messages);
   let mensajesHTML = '';
-  privateMessages.unshift(messages);
 
-  privateMessages.forEach(({ destinatario, nombre, mensaje }) => {
+  messages.forEach(({ destinatario, nombre, mensaje }) => {
     mensajesHTML += `
       <p class="m-3 msgdynamic">
         <span>De <span class="text-primary">
-          ${nombre === nombrePropio ? 'mi' : destinatario}
+          ${nombre === nombrePropio ? 'mi' : nombre}
         </span> para 
         <span class="text-primary">
           ${destinatario === nombrePropio ? 'mi' : destinatario}

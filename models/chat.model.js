@@ -46,11 +46,12 @@ class Chat {
   }
 
   misMensajesPrivados(uid = '') {
-    let msgs = this.mensajesPrivados;
-    let mensajePrivadísimo = msgs.find((msg) => msg.uidDestinatario === uid);
-    console.log(mensajePrivadísimo);
+    let mensajesPrivadísimos = [...this.mensajesPrivados].filter(
+      (msgPrivado) => msgPrivado.destinatario !== uid
+    );
+    // console.log(mensajesPrivadísimos);
 
-    return mensajePrivadísimo;
+    return mensajesPrivadísimos;
   }
 
   enviarMensajePrivado(uid, nombre, mensaje, uidDestinatario, destinatario) {
